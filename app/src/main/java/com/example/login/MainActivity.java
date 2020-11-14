@@ -3,6 +3,7 @@ package com.example.login;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -40,6 +41,30 @@ public class MainActivity extends AppCompatActivity {
         campoSenha=findViewById(R.id.senha);
 
     }
+    public void criarUsuario (String email, String password){
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d("TAG", "createUserWithEmail:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            chamaPrincipal();
+
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w("TAG", "createUserWithEmail:failure", task.getException());
+                            Toast.makeText(MainActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+
+                        }
+
+                        // ...
+                    }
+                });
+    }
+
     public void login(String email, String password){
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -49,27 +74,32 @@ public class MainActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("TAG", "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                           // updateUI(user);
+
+                            chamaPrincipal();
+
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w("TAG", "signInWithEmail:failure", task.getException());
                             Toast.makeText(getApplicationContext(), "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
-                            //updateUI(null);
-                            // ...
                         }
 
-                        // ...
+
                     }
                 });
 
+    }
+    private void chamaPrincipal(){
+        Intent it = new Intent(MainActivity.this,Principal.class);
+        startActivity(it);
+     //   finish();
     }
     @Override
     protected void onStart() {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser!=null){
-            ///tela principal
+            chamaPrincipal();
         }else{
             //fico na tela de login
         }
@@ -81,7 +111,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void entrar(View view){
-    login(campoEmail.getText().toString(),campoSenha.getText().toString());
+     login(campoEmail.getText().toString(),campoSenha.getText().toString());
+    }
+    public void novo(View view){
+        criarUsuario(campoEmail.getText().toString(),campoSenha.getText().toString());
     }
     public void sair(View view){
         finish();;
